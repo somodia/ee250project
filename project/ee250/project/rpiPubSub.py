@@ -1,3 +1,5 @@
+  GNU nano 3.2                          rpiPubSub.py                                     
+
 """EE 250L Lab 04 Starter Code
 
 Run rpi_pub_and_sub.py on your Raspberry Pi."""
@@ -19,31 +21,14 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("asomodi/ultrasonic")
     client.subscribe("asomodi/buzzer")
     client.subscribe("asomodi/led")
-    #client.subscribe("asomodi/lcd")
+    client.subscribe("asomodi/baby_mood")
+    client.subscribe("asomodi/baby_location")
     client.message_callback_add("asomodi/led",custom_callback)
     #client.message_callback_add("asomodi/lcd",custom_callback_lcd)
     client.message_callback_add("asomodi/buzzer", custom_callback_buzz)
 
     #modifications
     client.message_callback_add("asomodi/buzzer_command", buzzer_command_callback)
-
-    #modifications
-    client.subscribe("asomodi/buzzer_command")
-def on_message(client, userdata, msg):
-    print("on_message: " + msg.topic + " " + str(msg.payload, "utf-8"))
-
-def custom_callback(client, userdata, message): #
-    print(message.payload.decode())
-    if (message.payload.decode() == "LED_ON"):
-        grovepi.digitalWrite(led, 1)
-    if(message.payload.decode() == "LED_OFF"):
-        grovepi.digitalWrite(led, 0)
-
-def custom_callback_buzz(client, userdata, message):
-    if (message.payload.decode() == "BUZZER_ON"):
-        grovepi.digitalWrite(buzzer, 1)
-    if (message.payload.decode() == "BUZZER_OFF"):
-        grovepi.digitalWrite(buzzer, 0)
 
 #modifications
 # Define a callback for the buzzer command
@@ -69,12 +54,12 @@ if __name__ == '__main__':
     grovepi.pinMode(buzzer, "OUTPUT")
     grovepi.pinMode(led, "OUTPUT")
     grovepi.pinMode(sound, "INPUT")
-
-    while True:
-        time.sleep(.5) # poll and publish every half second
+    
+ while True:
+        time.sleep(1) # poll and publish every half second
         range_value = grovepi.ultrasonicRead(ultrasonicPort)
         sound_value = grovepi.analogRead(sound)
         client.publish("asomodi/sound",str(sound_value).encode())
         client.publish("asomodi/ultrasonic", str(range_value).encode())
 
-       
+
