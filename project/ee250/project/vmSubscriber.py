@@ -14,7 +14,9 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("asomodi/sound", 1)
     client.subscribe("asomodi/led", 1)
     client.subscribe("asomodi/buzzer", 1)
-    
+    client.subscribe("asomodi/baby_mood", 1)
+    client.subscribe("asomodi/baby_location", 1)
+
     client.message_callback_add("asomodi/ultrasonic", custom_callback)
     client.message_callback_add("asomodi/sound", custom_callback_sound)
     
@@ -24,23 +26,26 @@ def on_message(client, userdata, msg):
 
 def custom_callback(client, userdata, message):
     print("VM: " + str(message.payload, "utf-8") + "cm")
-    ultrasonicReading = int(str(message.payload, "utf-8"))
+    ultrasonicReading = message.payload.decode("utf-8")
+    ultrasonicReading = int(ultrasonicReading)
+
     if (ultrasonicReading < 20): # baby is near, led off
         client.publish("asomodi/led", "LED_OFF")
-        client.publish("asomodi/baby_status", "Baby ran away")
-    else: # baby is far, led on
+        client.publish("asomodi/baby_location", "Baby is close")
+    if (ultrasonicReading >= 20): # baby is far, led on
         client.publish("asomodi/led", "LED_ON")
-        client.publish("asomodi/baby_status", "Baby is close")
+        client.publish("asomodi/baby_location", "Baby ran away")
     
 def custom_callback_sound(client, userdata, message):
     print("VM: " + str(message.payload, "utf-8") + "sound")
-    soundReading = int(str(message.payload), "utf-8")
+    soundReading = message.payload.decode("utf-8")
+    soundReading = int(soundReading)
     if (soundReading < 400):
         client.publish("asomodi/buzzer", "BUZZER_OFF")
-        client.publish("asomodi/baby_status", "Baby is calm")
-    else:
+        client.publish("asomodi/baby_mood", "Baby is calm")
+    if (soundReading >= 400):
         client.publish("asomodi/buzzer", "BUZZER_ON")
-        client.publish("asomodi/baby_status", "Baby is crying")
+        client.publish("asomodi/baby_mood", "Baby is crying")
 
     
 if __name__ == '__main__':
