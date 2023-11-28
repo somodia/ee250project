@@ -48,6 +48,17 @@
     <div class="status-box">
         <p>{{ status }}</p>
     </div>
-    <button onclick="location.href='/activate_buzzer'">Activate Buzzer</button>
+<!-- Status Box for Baby's Calm or Crying Status -->
+    <div class="status-box">
+        <p>Baby's Mood: {{ mood_status }}</p>
+    </div>
+    <!-- Status Box for Baby's Location Status -->
+    <div class="status-box">
+        <p>Baby's Location: {{ location_status }}</p>
+    </div>
+
+    <form action="activate_buzzer" method="post">
+        <button type = "submit">Activate Buzzer</button>
+    </form>
 </body>
 </html>
