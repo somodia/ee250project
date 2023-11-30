@@ -24,7 +24,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg): 
     print("on_message: " + msg.topic + " " + str(msg.payload, "utf-8"))
 
-def custom_callback(client, userdata, message):
+def custom_callback(client, userdata, message): # custom callback for ultrasonic reading
     print("VM: " + str(message.payload, "utf-8") + "cm")
     ultrasonicReading = message.payload.decode("utf-8")
     ultrasonicReading = int(ultrasonicReading)
@@ -36,14 +36,14 @@ def custom_callback(client, userdata, message):
         client.publish("asomodi/led", "LED_ON")
         client.publish("asomodi/baby_location", "Baby ran away")
     
-def custom_callback_sound(client, userdata, message):
+def custom_callback_sound(client, userdata, message): # custom callback for sound level reading
     print("VM: " + str(message.payload, "utf-8") + "sound")
     soundReading = message.payload.decode("utf-8")
     soundReading = int(soundReading)
-    if (soundReading < 400):
+    if (soundReading < 400): # quiet baby
         client.publish("asomodi/buzzer", "BUZZER_OFF")
         client.publish("asomodi/baby_mood", "Baby is calm")
-    if (soundReading >= 400):
+    if (soundReading >= 400): # loud baby
         client.publish("asomodi/buzzer", "BUZZER_ON")
         client.publish("asomodi/baby_mood", "Baby is crying")
 
