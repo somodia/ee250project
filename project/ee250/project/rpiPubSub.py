@@ -4,7 +4,7 @@
 
 Run rpi_pub_and_sub.py on your Raspberry Pi."""
 """ Team: Alexandra Somodi, Victoria Nunez
-GitHub Link: https://github.com/somodia/ee250project
+GitHub Link: https://github.com/somodia/ee250project/project/ee250/project
 """
 import paho.mqtt.client as mqtt
 import time
@@ -24,15 +24,23 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("asomodi/baby_mood")
     client.subscribe("asomodi/baby_location")
     client.message_callback_add("asomodi/led",custom_callback)
-    #client.message_callback_add("asomodi/lcd",custom_callback_lcd)
     client.message_callback_add("asomodi/buzzer", custom_callback_buzz)
-
-    #modifications
     client.message_callback_add("asomodi/buzzer_command", buzzer_command_callback)
 
-#modifications
-# Define a callback for the buzzer command
-def buzzer_command_callback(client, userdata, message):
+def custom_callback(client, userdata, message): # custom callback for LED
+    print(message.payload.decode())
+    if (message.payload.decode() == "LED_ON"):
+        grovepi.digitalWrite(led, 1)
+    if(message.payload.decode() == "LED_OFF"):
+        grovepi.digitalWrite(led, 0)
+
+def custom_callback_buzz(client, userdata, message): # custom callback for buzzer
+    if (message.payload.decode() == "BUZZER_ON"):
+        grovepi.digitalWrite(buzzer, 1)
+    if (message.payload.decode() == "BUZZER_OFF"):
+        grovepi.digitalWrite(buzzer, 0)
+      
+def buzzer_command_callback(client, userdata, message): # custom callback for buzzer button
     if message.payload.decode() == "BUZZER_ON":
         # Code to turn on the buzzer
         grovepi.digitalWrite(buzzer, 1)
@@ -56,7 +64,7 @@ if __name__ == '__main__':
     grovepi.pinMode(sound, "INPUT")
     
  while True:
-        time.sleep(1) # poll and publish every half second
+        time.sleep(1) # send readings every wecond
         range_value = grovepi.ultrasonicRead(ultrasonicPort)
         sound_value = grovepi.analogRead(sound)
         client.publish("asomodi/sound",str(sound_value).encode())
